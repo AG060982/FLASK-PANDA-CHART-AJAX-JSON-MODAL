@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <title>Database Usage</title>
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/bootstrap.min.css') }}">
+  <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/pulse.css') }}">
+  </head>
+<body>
+<!-- Large modal -->
+<br>
+<div class="container-fluid">
+<h4>Click to Check DB</h4>
+<!-- Button trigger modal -->
+  <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" onclick="FetchDBdetails('RING','Diamond')">DEV</button>
+  <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal" onclick="FetchDBdetails('RING','GOLD')">DEV2</button>
+
+  <!-- Modal -->
+   <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" style="height:600px;width:350px;">
+            <div class="modal-content" style="height: 75%;background-color:white;">
+                  <div class="modal-header">
+                        <h6 class="modal-title" id="server"></h6>
+                        <button type="button" class="close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
+                        </button>
+                  </div>
+                  <div class="modal-body" >
+                  <canvas id="canvas" width="400" height="400"></canvas>
+             <div id = running class="loading" style="left:43%;top:38%">
+             <p>Running</p>
+             <div class="loading-bar"></div>
+             <div class="loading-bar"></div>
+             <div class="loading-bar"></div>
+             <div class="loading-bar"></div>
+             <div class="loading-bar"></div>
+             <div class="loading-bar"></div>
+             <div class="loading-bar"></div>
+             </div>
+            <div id = notrunning class="loading" style="left:43%;top:38%">
+             <p>Down</p>
+             <div class="Notloading-bar"></div>
+             <div class="Notloading-bar"></div>
+             <div class="Notloading-bar"></div>
+             <div class="Notloading-bar"></div>
+             <div class="Notloading-bar"></div>
+             <div class="Notloading-bar"></div>
+             <div class="Notloading-bar"></div>
+             </div>
+             <center><h6 class="modal-title" id="db"></h6></center>
+             </div>
+            </div>
+      </div>
+   </div>
+</div>
+ <!--<script src='static/js/jquery-slim.min.js'></script>-->
+   <script src='static/js/popper.min.js'></script>
+   <script src='static/js/jquery.min.js'></script>
+   <script src='static/js/bootstrap.min.js'></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js"></script>
+<script>
+
+function FetchDBdetails(db,server){
+$.ajax({
+     url:"/get_detail",
+     method:"POST",
+     data:{db:db,server:server},
+     dataType: "json",
+     success: function(response) {
+                status=response['status'];
+                server=response['server'];
+                used=response['used'];
+                unused=response['unused'];
+                db=response['database'];
+                console.log(status);
+                //document.getElementById("stat").innerHTML = status;
+                document.getElementById("server").innerHTML = server;
+                document.getElementById("db").innerHTML = db+" - Spaced used in MB";
+                if ( status == "Running")
+                { document.getElementById("notrunning").style.display = 'none';
+                 document.getElementById("running").style.display = 'block'}
+                if (status == "Down")
+                { document.getElementById("running").style.display = 'none';
+                 document.getElementById("notrunning").style.display = 'block';}
+                ReturnDBStat(used,unused);
+
+      },
+     error: function(error) {
+                console.log(error);
+            }
+});
+}
+
+function ReturnDBStat(used,unused){
+ctx = canvas.getContext('2d');
+config = {
+   type: 'doughnut',
+   data: {
+      labels: ["Used","Unused"],
+      datasets: [{
+         label: 'Graph PIE',
+         data: [used,unused],
+         backgroundColor: ["lightskyblue", "yellowgreen"]
+      }]
+   },
+   options: {
+      responsive: true,
+       title: {
+        display: true,
+        text: 'DataBase Used in MB'
+              },
+      legend: {
+            display: true,
+			position: 'bottom'
+             }
+    }
+};
+}
+
+$('#myModal').on('shown.bs.modal',function(event){
+chart = new Chart(ctx, config);
+});
+</script>
+</body>
+</html>
