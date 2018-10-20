@@ -1,0 +1,3 @@
+env,server,database,status,unused,used
+DEV,Diamond,RING,Down,5000,8000
+DEV2,GOLD,RING,Running,5000,10000
